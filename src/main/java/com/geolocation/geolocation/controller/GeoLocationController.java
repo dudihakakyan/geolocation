@@ -1,6 +1,7 @@
 package com.geolocation.geolocation.controller;
 
 import com.geolocation.geolocation.dto.DistanceResponseDTO;
+import com.geolocation.geolocation.dto.PopularSearchResponseDTO;
 import com.geolocation.geolocation.service.GeoLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,4 +24,10 @@ public class GeoLocationController
         return ResponseEntity.ok(distanceBetween);
     }
 
+    @GetMapping("/popularsearch")
+    public ResponseEntity<?> getPopularSearch()
+    {
+        PopularSearchResponseDTO popularSearch = geoLocationService.getPopularSearch();
+        return popularSearch == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(popularSearch);
+    }
 }
