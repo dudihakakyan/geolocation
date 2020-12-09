@@ -21,7 +21,7 @@ public class Distance
 
     public Distance()
     {
-        this.hits = 1;
+        this.hits = 0;
     }
 
     public String getId()
@@ -29,7 +29,8 @@ public class Distance
         return id;
     }
 
-    public Distance setId(String id) {
+    public Distance setId(String id)
+    {
         this.id = id;
         return this;
     }
@@ -47,7 +48,7 @@ public class Distance
 
     public Integer getHits()
     {
-        return hits;
+        return hits == null ? 0 : hits;
     }
 
     public Distance setHits(Integer hits)
@@ -57,26 +58,30 @@ public class Distance
     }
 
     @Transient
-    public Distance incrementHits() {
-        setHits(hits == null ? 1 : hits + 1);
+    public Distance incrementHits()
+    {
+        setHits(getHits() + 1);
         return this;
     }
 
     @Transient
-    public String getSource() {
-       return id == null ? null : id.split(SOURCE_DEST_SEPARATOR)[0];
-
+    public String getSource()
+    {
+        return id == null ? null : id.split(SOURCE_DEST_SEPARATOR)[0];
     }
 
     @Transient
-    public String getDestination() {
-       return id == null ? null : id.split(SOURCE_DEST_SEPARATOR)[1];
+    public String getDestination()
+    {
+        return id == null ? null : id.split(SOURCE_DEST_SEPARATOR)[1];
     }
 
     @Transient
-    public static String generateId(String source, String destination) {
-        if (StringUtils.isAnyBlank(source, destination)) {
-           return null;
+    public static String generateId(String source, String destination)
+    {
+        if (StringUtils.isAnyBlank(source, destination))
+        {
+            return null;
         }
 
         final String src = source.toLowerCase();

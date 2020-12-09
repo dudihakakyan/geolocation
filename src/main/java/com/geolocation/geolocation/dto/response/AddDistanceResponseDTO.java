@@ -1,21 +1,21 @@
-package com.geolocation.geolocation.dto;
+package com.geolocation.geolocation.dto.response;
 
 import com.geolocation.geolocation.document.Distance;
 
-public class PopularSearchResponseDTO
+public class AddDistanceResponseDTO
 {
     private String source;
-    private String target;
+    private String destination;
     private Integer hits;
 
-    public PopularSearchResponseDTO(Distance distance)
+    public AddDistanceResponseDTO(Distance distance)
     {
         this.source = distance.getSource();
-        this.target = distance.getDestination();
+        this.destination = distance.getDestination();
         this.hits = distance.getHits();
     }
 
-    public PopularSearchResponseDTO()
+    public AddDistanceResponseDTO()
     {
     }
 
@@ -29,14 +29,14 @@ public class PopularSearchResponseDTO
         this.source = source;
     }
 
-    public String getTarget()
+    public String getDestination()
     {
-        return target;
+        return destination;
     }
 
-    public void setTarget(String target)
+    public void setTarget(String destination)
     {
-        this.target = target;
+        this.destination = destination;
     }
 
     public Integer getHits()

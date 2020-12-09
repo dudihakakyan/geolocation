@@ -1,14 +1,17 @@
 package com.geolocation.geolocation.controller;
 
-import com.geolocation.geolocation.dto.DistanceResponseDTO;
-import com.geolocation.geolocation.dto.PopularSearchResponseDTO;
+import com.geolocation.geolocation.dto.request.AddDistanceRequestDTO;
+import com.geolocation.geolocation.dto.response.AddDistanceResponseDTO;
+import com.geolocation.geolocation.dto.response.DistanceResponseDTO;
+import com.geolocation.geolocation.dto.response.PopularSearchResponseDTO;
 import com.geolocation.geolocation.service.GeoLocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.net.URI;
+
 
 @RestController
 @RequestMapping
@@ -29,5 +32,11 @@ public class GeoLocationController
     {
         PopularSearchResponseDTO popularSearch = geoLocationService.getPopularSearch();
         return popularSearch == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(popularSearch);
+    }
+
+    @PostMapping("/distance")
+    public ResponseEntity<?> addDistance(@RequestBody @Valid AddDistanceRequestDTO addDistanceRequestDTO) {
+        AddDistanceResponseDTO addDistanceResponseDTO = geoLocationService.addDistance(addDistanceRequestDTO);
+        return ResponseEntity.created(URI.create("")).body(addDistanceResponseDTO);
     }
 }

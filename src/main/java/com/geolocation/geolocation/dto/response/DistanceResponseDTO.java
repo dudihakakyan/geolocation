@@ -1,4 +1,4 @@
-package com.geolocation.geolocation.dto;
+package com.geolocation.geolocation.dto.response;
 
 
 import com.geolocation.geolocation.document.Distance;

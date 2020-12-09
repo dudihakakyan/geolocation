@@ -1,8 +1,10 @@
 package com.geolocation.geolocation.service;
 
 import com.geolocation.geolocation.document.Distance;
-import com.geolocation.geolocation.dto.DistanceResponseDTO;
-import com.geolocation.geolocation.dto.PopularSearchResponseDTO;
+import com.geolocation.geolocation.dto.request.AddDistanceRequestDTO;
+import com.geolocation.geolocation.dto.response.AddDistanceResponseDTO;
+import com.geolocation.geolocation.dto.response.DistanceResponseDTO;
+import com.geolocation.geolocation.dto.response.PopularSearchResponseDTO;
 import com.geolocation.geolocation.handler.exceptions.ApiParametersAreNotAlphaStringException;
 import com.geolocation.geolocation.repository.DistanceRepository;
 import com.geolocation.geolocation.util.DistanceUtil;
@@ -56,7 +58,8 @@ public class GeoLocationService
             // create Distance document
             Distance distance = new Distance()
                     .setId(id)
-                    .setDistance(distanceBetween);
+                    .setDistance(distanceBetween)
+                    .setHits(1);
 
             insertToDbAsync(distance);
 
@@ -90,5 +93,56 @@ public class GeoLocationService
     {
         Optional<Distance> optDistance = distanceRepository.findTopByOrderByHitsDesc();
         return optDistance.map(PopularSearchResponseDTO::new).orElse(null);
+    }
+
+    public AddDistanceResponseDTO addDistance(AddDistanceRequestDTO addDistanceRequestDTO)
+    {
+        String id = Distance.generateId(addDistanceRequestDTO.getSource(), addDistanceRequestDTO.getDestination());
+        Optional<Distance> optDistance = findById(id);
+
+        Distance distance;
+        if (optDistance.isPresent())
+        {
+            distance = optDistance.get();
+            distance.setDistance(addDistanceRequestDTO.getDistance());
+        } else
+        {
+            distance = new Distance()
+                    .setId(id)
+                    .setDistance(addDistanceRequestDTO.getDistance())
+                    .setHits(0);
+        }
+
+        distance = save(distance);
+        return new AddDistanceResponseDTO(distance);
+    }
+
+    public Optional<Distance> findById(String id)
+    {
+        try
+        {
+            return distanceRepository.findById(id);
+        } catch (Exception e)
+        {
+            log.error("Failed to find Distance byb id.", e);
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+    public Distance save(Distance distance)
+    {
+        try
+        {
+            return distanceRepository.save(distance);
+        } catch (Exception e)
+        {
+            log.error("Failed to add distance!", e);
+            e.printStackTrace();
+
+        }
+
+        throw new RuntimeException();
     }
 }
