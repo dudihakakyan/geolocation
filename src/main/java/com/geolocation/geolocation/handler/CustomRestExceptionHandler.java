@@ -6,6 +6,7 @@ import com.geolocation.geolocation.handler.exceptions.InvalidSourceOrDestination
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -21,7 +22,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
                                                                           HttpHeaders headers, HttpStatus status, WebRequest request)
     {
-        String error = ex.getParameterName() + " parameter is missing";
+        String error = "'" + ex.getParameterName() + "' parameter is missing";
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -71,4 +72,11 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
+                                                                  HttpStatus status, WebRequest request)
+    {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Http message not readable", ex.getLocalizedMessage());
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
 }
