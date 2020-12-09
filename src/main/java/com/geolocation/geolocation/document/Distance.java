@@ -58,13 +58,6 @@ public class Distance
     }
 
     @Transient
-    public Distance incrementHits()
-    {
-        setHits(getHits() + 1);
-        return this;
-    }
-
-    @Transient
     public String getSource()
     {
         return id == null ? null : id.split(SOURCE_DEST_SEPARATOR)[0];

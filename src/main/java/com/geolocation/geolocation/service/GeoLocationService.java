@@ -27,6 +27,8 @@ public class GeoLocationService
     @Autowired
     private DistanceRepository distanceRepository;
 
+    // =================================================================================================================
+
     public DistanceResponseDTO getDistanceBetween(String source, String destination)
     {
         if (!StringUtils.isAlpha(source) || !StringUtils.isAlpha(destination))
@@ -40,18 +42,10 @@ public class GeoLocationService
         }
 
         final String id = Distance.generateId(source, destination);
-
-        Optional<Distance> optDistance;
-        try
-        {
-            optDistance = distanceRepository.findById(id);
-        } catch (Exception e)
-        {
-            optDistance = Optional.empty();
-        }
+        Optional<Distance> optDistance = getDistanceByIdNoException(id);
 
         return optDistance.map(distance -> {
-            incrementHitsAsync(distance);
+            incrementHitsAsync(distance.getId());
             return new DistanceResponseDTO(distance);
         }).orElseGet(() -> {
             Integer distanceBetween = DistanceUtil.getDistanceBetween(source, destination);
@@ -69,25 +63,30 @@ public class GeoLocationService
         });
     }
 
-    private void incrementHitsAsync(Distance distance)
+    // =================================================================================================================
+
+    private void incrementHitsAsync(String id)
     {
         CompletableFuture.runAsync(() -> {
-            distance.incrementHits();
-            distanceRepository.save(distance);
+            distanceRepository.incrementHits(id);
         }).exceptionally(e -> {
-            log.error("Failed to update hits!", e);
+            log.error("Failed to increment hits for id: " + id, e);
             return null;
         });
 
     }
+
+    // =================================================================================================================
 
     public void insertToDbAsync(Distance distance)
     {
         CompletableFuture.runAsync(() -> distanceRepository.insert(distance)).exceptionally(e -> {
-            e.printStackTrace();
+            log.error("Failed to insert new distance document", e);
             return null;
         });
     }
+
+    // =================================================================================================================
 
     public PopularSearchResponseDTO getPopularSearch()
     {
@@ -95,10 +94,12 @@ public class GeoLocationService
         return optDistance.map(PopularSearchResponseDTO::new).orElse(null);
     }
 
+    // =================================================================================================================
+
     public AddDistanceResponseDTO addDistance(AddDistanceRequestDTO addDistanceRequestDTO)
     {
         String id = Distance.generateId(addDistanceRequestDTO.getSource(), addDistanceRequestDTO.getDestination());
-        Optional<Distance> optDistance = findById(id);
+        Optional<Distance> optDistance = distanceRepository.getDistanceById(id);
 
         Distance distance;
         if (optDistance.isPresent())
@@ -117,11 +118,13 @@ public class GeoLocationService
         return new AddDistanceResponseDTO(distance);
     }
 
-    public Optional<Distance> findById(String id)
+    // =================================================================================================================
+
+    public Optional<Distance> getDistanceByIdNoException(String id)
     {
         try
         {
-            return distanceRepository.findById(id);
+            return distanceRepository.getDistanceById(id);
         } catch (DataAccessResourceFailureException e)
         {
             log.error("Failed to find Distance by id", e);
@@ -129,6 +132,8 @@ public class GeoLocationService
 
         return Optional.empty();
     }
+
+    // =================================================================================================================
 
     public Distance save(Distance distance)
     {
@@ -138,8 +143,10 @@ public class GeoLocationService
         } catch (DataAccessResourceFailureException e)
         {
             log.error("Failed to add distance!", e);
+            throw e;
         }
-
-        throw new RuntimeException();
     }
+
+    // =================================================================================================================
+
 }
