@@ -45,7 +45,7 @@ public class GeoLocationService
         Optional<Distance> optDistance = getDistanceByIdNoException(id);
 
         return optDistance.map(distance -> {
-            incrementHitsAsync(distance.getId());
+            incrementHitsAsync(distance);
             return new DistanceResponseDTO(distance);
         }).orElseGet(() -> {
             Integer distanceBetween = DistanceUtil.getDistanceBetween(source, destination);
@@ -65,12 +65,13 @@ public class GeoLocationService
 
     // =================================================================================================================
 
-    private void incrementHitsAsync(String id)
+    private void incrementHitsAsync(Distance distance)
     {
         CompletableFuture.runAsync(() -> {
-            distanceRepository.incrementHits(id);
+            distance.setHits(distance.getHits() + 1);
+            distanceRepository.save(distance);
         }).exceptionally(e -> {
-            log.error("Failed to increment hits for id: " + id, e);
+            log.error("Failed to increment hits for id: " + distance.getId(), e);
             return null;
         });
 
@@ -99,7 +100,7 @@ public class GeoLocationService
     public AddDistanceResponseDTO addDistance(AddDistanceRequestDTO addDistanceRequestDTO)
     {
         String id = Distance.generateId(addDistanceRequestDTO.getSource(), addDistanceRequestDTO.getDestination());
-        Optional<Distance> optDistance = distanceRepository.getDistanceById(id);
+        Optional<Distance> optDistance = distanceRepository.findById(id);
 
         Distance distance;
         if (optDistance.isPresent())
@@ -114,7 +115,7 @@ public class GeoLocationService
                     .setHits(0);
         }
 
-        distance = save(distance);
+        distance = distanceRepository.save(distance);
         return new AddDistanceResponseDTO(distance);
     }
 
@@ -124,27 +125,13 @@ public class GeoLocationService
     {
         try
         {
-            return distanceRepository.getDistanceById(id);
+            return distanceRepository.findById(id);
         } catch (DataAccessResourceFailureException e)
         {
             log.error("Failed to find Distance by id", e);
         }
 
         return Optional.empty();
-    }
-
-    // =================================================================================================================
-
-    public Distance save(Distance distance)
-    {
-        try
-        {
-            return distanceRepository.save(distance);
-        } catch (DataAccessResourceFailureException e)
-        {
-            log.error("Failed to add distance!", e);
-            throw e;
-        }
     }
 
     // =================================================================================================================
