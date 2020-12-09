@@ -5,6 +5,8 @@ import com.geolocation.geolocation.handler.exceptions.ExternalServiceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +26,21 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
+                                                                  HttpStatus status, WebRequest request)
+    {
+        StringBuilder returnMessage = new StringBuilder();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            returnMessage.append(fieldName).append(" ").append(errorMessage).append(System.lineSeparator());
+        });
+
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), returnMessage.toString());
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
     @ExceptionHandler({ApiParametersAreNotAlphaStringException.class})
     public ResponseEntity<Object> apiParametersAreNotAlphaStringException(ApiParametersAreNotAlphaStringException ex, WebRequest request)
     {
@@ -36,4 +53,5 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler
     {
         return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
+
 }

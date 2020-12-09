@@ -11,6 +11,7 @@ import com.geolocation.geolocation.util.DistanceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +76,6 @@ public class GeoLocationService
             distanceRepository.save(distance);
         }).exceptionally(e -> {
             log.error("Failed to update hits!", e);
-            e.printStackTrace();
             return null;
         });
 
@@ -122,10 +122,9 @@ public class GeoLocationService
         try
         {
             return distanceRepository.findById(id);
-        } catch (Exception e)
+        } catch (DataAccessResourceFailureException e)
         {
-            log.error("Failed to find Distance byb id.", e);
-            e.printStackTrace();
+            log.error("Failed to find Distance by id", e);
         }
 
         return Optional.empty();
@@ -136,11 +135,9 @@ public class GeoLocationService
         try
         {
             return distanceRepository.save(distance);
-        } catch (Exception e)
+        } catch (DataAccessResourceFailureException e)
         {
             log.error("Failed to add distance!", e);
-            e.printStackTrace();
-
         }
 
         throw new RuntimeException();

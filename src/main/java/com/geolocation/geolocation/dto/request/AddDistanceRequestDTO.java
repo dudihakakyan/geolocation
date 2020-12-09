@@ -1,14 +1,14 @@
 package com.geolocation.geolocation.dto.request;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 public class AddDistanceRequestDTO
 {
-    @NotBlank
+    @Pattern(regexp="^[A-Za-z]+$",message = "must contains only letters")
     private String source;
 
-    @NotBlank
+    @Pattern(regexp="^[A-Za-z]+$",message = "must contains only letters")
     private String destination;
 
     @Min(0)
@@ -25,7 +25,7 @@ public class AddDistanceRequestDTO
 
     public void setSource(String source)
     {
-        this.source = source.toLowerCase();
+        this.source = source.toLowerCase().trim();
     }
 
     public String getDestination()
@@ -35,7 +35,7 @@ public class AddDistanceRequestDTO
 
     public void setDestination(String destination)
     {
-        this.destination = destination.toLowerCase();
+        this.destination = destination.toLowerCase().trim();
     }
 
     public Integer getDistance()
