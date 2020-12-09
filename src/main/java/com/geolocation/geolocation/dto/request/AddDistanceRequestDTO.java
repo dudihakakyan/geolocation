@@ -5,10 +5,10 @@ import javax.validation.constraints.Pattern;
 
 public class AddDistanceRequestDTO
 {
-    @Pattern(regexp="^[A-Za-z]+$",message = "must contains only letters")
+    @Pattern(regexp="^[A-Za-z]+$",message = "must contain only letters")
     private String source;
 
-    @Pattern(regexp="^[A-Za-z]+$",message = "must contains only letters")
+    @Pattern(regexp="^[A-Za-z]+$",message = "must contain only letters")
     private String destination;
 
     @Min(0)
