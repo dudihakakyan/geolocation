@@ -80,6 +80,6 @@ public class Distance
         final String src = source.toLowerCase();
         final String dst = destination.toLowerCase();
 
-        return src.compareTo(dst) < 0 ? src + SOURCE_DEST_SEPARATOR + destination : destination + SOURCE_DEST_SEPARATOR + src;
+        return src.compareTo(dst) < 0 ? src + SOURCE_DEST_SEPARATOR + dst : dst + SOURCE_DEST_SEPARATOR + src;
     }
 }
